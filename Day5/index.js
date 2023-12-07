@@ -9,8 +9,9 @@ fs.readFile(file, 'utf8' , (err, data) => {
   }
   const arrayOfInputs = data.split("\n")
   // const ans = partOneFast(arrayOfInputs);
-  const ans = partTwo(arrayOfInputs);
-  console.log(ans);
+  // const ans = partTwo(arrayOfInputs);
+  console.log(partTwoBackwards(arrayOfInputs));
+  // console.log(ans);
 });
 
 const getSeedNums = (seedNumRow) => {
@@ -147,3 +148,67 @@ const partTwo = (input) => {
 
   console.log(locationRanges);
 };
+
+const mapKeys = [
+  "seed-to-soil map:",
+  "soil-to-fertilizer map:",
+  'fertilizer-to-water map:',
+  'water-to-light map:',
+  "light-to-temperature map:",
+  'temperature-to-humidity map:', 
+  'humidity-to-location map:'
+];
+
+let almanac = {};
+
+const buildAlmanac = () => {
+  mapKeys.forEach((mapKey) => {
+    let rowIdx = input.indexOf(mapKey) + 1;
+    while(input[rowIdx] && input[rowIdx] != "") {
+      almanac[mapKey] = [destination, source, length];
+    }
+  });
+}
+
+const getSeedFromLocation = (input, locationNum) => {
+  let curr = locationNum;
+  mapKeys.toReversed().forEach((mapKey) => {
+    let rowIdx = input.indexOf(mapKey) + 1;
+    let found = false;
+    while(input[rowIdx] && input[rowIdx] != "" && found === false) {
+      const [destination, source, length] = input[rowIdx].split(' ').map((str) => Number(str));
+      if (destination <= curr && destination + length > curr) {
+        curr = source + curr - destination;
+        found = true;
+      }
+      rowIdx++;
+    }
+    found = false;
+  })
+  return curr;
+}
+
+const seedNumExistsInRanges = (seedNumRanges, seedNum) => {
+  for(let i = 0; i < seedNumRanges.length; i++) {
+    if(seedNum >= seedNumRanges[i][0] && seedNum <= seedNumRanges[i][1]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+const partTwoBackwards = (input) => {
+  const seedNumRanges = getRangesOfSeedNums(input[0]);
+  let passes = 0;
+  for(let i = 1; i < 1_000_000_000; i++) {
+    if(i % 10_000 === 0){
+      console.log('debugging...', passes)
+      passes++;
+    }
+    const seedNum = getSeedFromLocation(input, i);
+    if(seedNumExistsInRanges(seedNumRanges, seedNum)) {
+      return {seedNum, i};
+    }
+  }
+}
