@@ -160,30 +160,31 @@ const mapKeys = [
 ];
 
 let almanac = {};
-
-const buildAlmanac = () => {
+const buildAlmanac = (input) => {
   mapKeys.forEach((mapKey) => {
     let rowIdx = input.indexOf(mapKey) + 1;
     while(input[rowIdx] && input[rowIdx] != "") {
-      almanac[mapKey] = [destination, source, length];
+      const [destination, source, length] = input[rowIdx].split(' ').map((str) => Number(str));
+      if(almanac[mapKey] == null) {
+        almanac[mapKey] = [];
+      } 
+      almanac[mapKey].push([destination, source, length]);
+      rowIdx++;
     }
   });
 }
 
-const getSeedFromLocation = (input, locationNum) => {
+const getSeedFromLocation = (locationNum) => {
   let curr = locationNum;
   mapKeys.toReversed().forEach((mapKey) => {
-    let rowIdx = input.indexOf(mapKey) + 1;
-    let found = false;
-    while(input[rowIdx] && input[rowIdx] != "" && found === false) {
-      const [destination, source, length] = input[rowIdx].split(' ').map((str) => Number(str));
+    const almanacEntry = almanac[mapKey];
+    for(let i = 0; i < almanacEntry.length; i++) {
+      const [destination, source, length] = almanacEntry[i];
       if (destination <= curr && destination + length > curr) {
         curr = source + curr - destination;
-        found = true;
+        break;
       }
-      rowIdx++;
     }
-    found = false;
   })
   return curr;
 }
@@ -200,13 +201,14 @@ const seedNumExistsInRanges = (seedNumRanges, seedNum) => {
 
 const partTwoBackwards = (input) => {
   const seedNumRanges = getRangesOfSeedNums(input[0]);
+  buildAlmanac(input);
   let passes = 0;
   for(let i = 1; i < 1_000_000_000; i++) {
     if(i % 10_000 === 0){
       console.log('debugging...', passes)
       passes++;
     }
-    const seedNum = getSeedFromLocation(input, i);
+    const seedNum = getSeedFromLocation(i);
     if(seedNumExistsInRanges(seedNumRanges, seedNum)) {
       return {seedNum, i};
     }
