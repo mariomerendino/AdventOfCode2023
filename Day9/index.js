@@ -52,6 +52,7 @@ const getNextValue = (arr) => {
 }
 
 const part1 = () => {
+  // for debugging
   let nextValues = [];
   let sum = 0;
   for(let i = 0; i < input.length; i++) {
@@ -102,14 +103,15 @@ const getPrevValue = (arr) => {
 }
 
 const part2 = () => {
-  let nextValues = [];
+  // for debugging
+  let prevValues = [];
   let sum = 0;
   for(let i = 0; i < input.length; i++) {
     let arr = input[i].split(' ').map((x) => Number(x));
-    let nextVal = getPrevValue(arr);
-    sum += nextVal
-    nextValues.push(nextVal);
+    let prevVal = getPrevValue(arr);
+    sum += prevVal
+    prevValues.push(prevVal);
   }
-  console.log(nextValues);
+  console.log(prevValues);
   return sum;
 }
